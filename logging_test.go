@@ -23,10 +23,29 @@ import (
 
 func TestLogging(t *testing.T) {
 	Convey("Level methods work", t, func() {
-		So(Debug.String(), ShouldEqual, "debug")
-		So(Info.String(), ShouldEqual, "info")
-		So(Warning.String(), ShouldEqual, "warning")
-		So(Error.String(), ShouldEqual, "error")
+		Convey("Set", func() {
+			var l Level
+			So(l.Set("debug"), ShouldBeNil)
+			So(l, ShouldEqual, Debug)
+
+			So(l.Set("info"), ShouldBeNil)
+			So(l, ShouldEqual, Info)
+
+			So(l.Set("warning"), ShouldBeNil)
+			So(l, ShouldEqual, Warning)
+
+			So(l.Set("error"), ShouldBeNil)
+			So(l, ShouldEqual, Error)
+
+			So(l.Set("wrong"), ShouldNotBeNil)
+		})
+
+		Convey("String", func() {
+			So(Debug.String(), ShouldEqual, "debug")
+			So(Info.String(), ShouldEqual, "info")
+			So(Warning.String(), ShouldEqual, "warning")
+			So(Error.String(), ShouldEqual, "error")
+		})
 	})
 
 	Convey("Top-level logging methods work", t, func() {

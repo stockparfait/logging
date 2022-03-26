@@ -20,6 +20,9 @@ package logging
 
 import (
 	"context"
+	"flag"
+
+	"github.com/stockparfait/errors"
 )
 
 // Level of logging, primarily for user-visible output.
@@ -32,7 +35,28 @@ const (
 	Error
 )
 
+// DefaultLevel is the default log level emitted by standard loggers.
 const DefaultLevel = Info
+
+var l Level
+var _ flag.Value = &l // ensure Level implements flag.Value
+
+// Set implements flag.Value.
+func (l *Level) Set(v string) error {
+	switch v {
+	case "debug":
+		*l = Debug
+	case "info":
+		*l = Info
+	case "warning":
+		*l = Warning
+	case "error":
+		*l = Error
+	default:
+		return errors.Reason("unknown log level value")
+	}
+	return nil
+}
 
 // String implements flag.Value.
 func (l Level) String() string {
