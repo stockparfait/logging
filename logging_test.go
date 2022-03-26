@@ -60,7 +60,7 @@ func TestLogging(t *testing.T) {
 		})
 
 		Convey("GoLogger", func() {
-			Convey("all methods correctly", func() {
+			Convey("all methods work correctly", func() {
 				var buf bytes.Buffer
 				ctx = Use(ctx, GoLogger(Debug, log.New(&buf, "", 0)))
 
@@ -81,7 +81,7 @@ func TestLogging(t *testing.T) {
 				buf.Reset()
 			})
 
-			Convey("level works correctly", func() {
+			Convey("setting level works correctly", func() {
 				var buf bytes.Buffer
 				ctx = Use(ctx, GoLogger(Warning, log.New(&buf, "", 0)))
 

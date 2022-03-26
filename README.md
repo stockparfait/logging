@@ -3,7 +3,7 @@
 This package implements logging by levels: `debug`, `info`, `warning` and
 `error`.
 
-This package is inspired and is design to be loosely compatible to the
+This package is inspired by, and is designed to be loosely compatible to the
 [`luci/common/logging`](https://pkg.go.dev/go.chromium.org/luci/common/logging)
 package.  The reason for reimplementation is that LUCI is a huge mono-repo,
 which may be an overkill for smaller projects, or projects unrelated to Cloud
