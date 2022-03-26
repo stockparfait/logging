@@ -15,7 +15,9 @@
 package logging
 
 import (
+	"bytes"
 	"context"
+	"log"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -55,6 +57,48 @@ func TestLogging(t *testing.T) {
 			So(func() { Infof(ctx, "foo %s", "bar") }, ShouldNotPanic)
 			So(func() { Warningf(ctx, "foo %s", "bar") }, ShouldNotPanic)
 			So(func() { Errorf(ctx, "foo %s", "bar") }, ShouldNotPanic)
+		})
+
+		Convey("GoLogger", func() {
+			Convey("all methods correctly", func() {
+				var buf bytes.Buffer
+				ctx = Use(ctx, GoLogger(Debug, log.New(&buf, "", 0)))
+
+				Debugf(ctx, "%s log", "debug")
+				So(buf.String(), ShouldEqual, "DEBUG: debug log\n")
+				buf.Reset()
+
+				Infof(ctx, "%s log", "info")
+				So(buf.String(), ShouldEqual, "INFO: info log\n")
+				buf.Reset()
+
+				Warningf(ctx, "%s log", "warning")
+				So(buf.String(), ShouldEqual, "WARNING: warning log\n")
+				buf.Reset()
+
+				Errorf(ctx, "%s log", "error")
+				So(buf.String(), ShouldEqual, "ERROR: error log\n")
+				buf.Reset()
+			})
+
+			Convey("level works correctly", func() {
+				var buf bytes.Buffer
+				ctx = Use(ctx, GoLogger(Warning, log.New(&buf, "", 0)))
+
+				Debugf(ctx, "%s log", "debug")
+				So(buf.Len(), ShouldEqual, 0)
+
+				Infof(ctx, "log %s", "info")
+				So(buf.Len(), ShouldEqual, 0)
+
+				Warningf(ctx, "log %s %s", "warning", "attention")
+				So(buf.String(), ShouldEqual, "WARNING: log warning attention\n")
+				buf.Reset()
+
+				Errorf(ctx, "%s log", "error")
+				So(buf.String(), ShouldEqual, "ERROR: error log\n")
+				buf.Reset()
+			})
 		})
 	})
 }

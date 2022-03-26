@@ -21,6 +21,8 @@ package logging
 import (
 	"context"
 	"flag"
+	"log"
+	"strings"
 
 	"github.com/stockparfait/errors"
 )
@@ -34,9 +36,6 @@ const (
 	Warning
 	Error
 )
-
-// DefaultLevel is the default log level emitted by standard loggers.
-const DefaultLevel = Info
 
 var l Level
 var _ flag.Value = &l // ensure Level implements flag.Value
@@ -139,4 +138,58 @@ func Get(ctx context.Context) Logger {
 		return Null
 	}
 	return l
+}
+
+// TextLogger is a simplified interface for implementing Logger.
+type TextLogger interface {
+	Log(level Level, msg string, args ...interface{})
+}
+
+type txtLogger struct {
+	textLogger TextLogger
+}
+
+func (l *txtLogger) Debugf(msg string, args ...interface{}) {
+	l.textLogger.Log(Debug, msg, args...)
+}
+
+func (l *txtLogger) Infof(msg string, args ...interface{}) {
+	l.textLogger.Log(Info, msg, args...)
+}
+
+func (l *txtLogger) Warningf(msg string, args ...interface{}) {
+	l.textLogger.Log(Warning, msg, args...)
+}
+
+func (l *txtLogger) Errorf(msg string, args ...interface{}) {
+	l.textLogger.Log(Error, msg, args...)
+}
+
+// Text2Logger convert TextLogger to Logger implementation.
+func Text2Logger(tl TextLogger) Logger {
+	return &txtLogger{textLogger: tl}
+}
+
+type goLogger struct {
+	logger *log.Logger
+	level  Level
+}
+
+var _ TextLogger = &goLogger{}
+
+func (l *goLogger) Log(level Level, msg string, args ...interface{}) {
+	if level < l.level {
+		return
+	}
+	l.logger.Printf(strings.ToUpper(level.String())+": "+msg, args...)
+}
+
+// GoLogger creates Logger instance from Go-standard log.Logger.
+func GoLogger(level Level, logger *log.Logger) Logger {
+	return Text2Logger(&goLogger{level: level, logger: logger})
+}
+
+// DefaultGoLogger creates Logger from the Go-standard default log.Logger.
+func DefaultGoLogger(level Level) Logger {
+	return GoLogger(level, log.Default())
 }
